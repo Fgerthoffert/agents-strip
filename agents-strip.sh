@@ -136,9 +136,9 @@ for q in glob.glob(home + "/GitHub/Jahia/cortex/local/sessions/*/quota.json"):
     for r in readings:
         w = r.get("window")
         if w in ("five_hour", "seven_day") and r.get("at", 0) > best.get(w, (0,))[0]:
-            best[w] = (r["at"], r.get("used_percentage"))
-q5 = best.get("five_hour", (0, None))[1]
-q7 = best.get("seven_day", (0, None))[1]
+            best[w] = (r["at"], r.get("used_percentage"), r.get("resets_at"))
+q5 = best.get("five_hour", (0, None, None))
+q7 = best.get("seven_day", (0, None, None))
 
 # --- layout ------------------------------------------------------------------
 CW, SEP, QW, BAR, CARD_H = 40, " │ ", 34, 14, 5
@@ -195,7 +195,18 @@ def bar(label, pct):
     bcol = "114" if p < 50 else ("214" if p < 80 else "203")
     glyph = c(bcol, "█" * fill) + c("238", "░" * (BAR - fill))
     return c("245", f"{label:<7}") + "[" + glyph + "]" + c("252", f" {p:4.0f}%")
-quota = [c("250", "\033[1mCLAUDE QUOTA\033[0m"), "", bar("session", q5), bar("weekly", q7), ""]
+def resetfmt(ts):        # reset time: time only if it resets today, else weekday + time
+    if not ts:
+        return c("238", f"{'':<8}↻ resets    n/a")
+    lt = time.localtime(ts)
+    same_day = time.strftime("%Y%j", lt) == time.strftime("%Y%j", time.localtime(now))
+    when = time.strftime("%H:%M" if same_day else "%a %H:%M", lt)
+    return c("240", f"{'':<8}↻ resets {when}")
+quota = [
+    c("250", "\033[1mCLAUDE QUOTA\033[0m"),
+    bar("session", q5[1]), resetfmt(q5[2]),
+    bar("weekly",  q7[1]), resetfmt(q7[2]),
+]
 
 sep_c = c("237", SEP)
 body_vis = len(shown) * CW + max(0, len(shown) - 1) * SEPN

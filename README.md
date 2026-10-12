@@ -7,13 +7,13 @@ labelled progress bars. It lives in a dedicated [Ghostty](https://ghostty.org)
 window pinned to the top of a monitor, so you can glance at every agent at once.
 
 ```
- AGENTS  · 3 session(s)                                                 14:07
-                                                        CLAUDE QUOTA
- ▸ RUNNING          │ ◆ WAITING          │ ✔ DONE
- 💬 Applying edits   │ 💬 Cypress runner  │ 💬 Wrote release   session [████░░░]  41%
-    to source files  │    awaiting relau… │    notes draft     weekly  [██░░░░░]  22%
- 📁 cortex          │ 📁 jahia-modules   │ 📁 academy-docs
- 🕒 just now        │ 🕒 2m ago          │ 🕒 18m ago
+ AGENTS  · 3 session(s)                                                      14:07
+
+ ▸ RUNNING          │ ◆ WAITING          │ ✔ DONE              CLAUDE QUOTA
+ 💬 Applying edits   │ 💬 Cypress runner  │ 💬 Wrote release    session [████░░░]  41%
+    to source files  │    awaiting relau… │    notes draft              ↻ resets 16:30
+ 📁 cortex          │ 📁 jahia-modules   │ 📁 academy-docs      weekly  [██░░░░░]  22%
+ 🕒 just now        │ 🕒 2m ago          │ 🕒 18m ago                   ↻ resets Mon 09:00
 ```
 
 Click a card to raise that agent's own Ghostty window.
