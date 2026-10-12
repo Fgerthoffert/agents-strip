@@ -25,7 +25,13 @@ SOCK=agents
 T() { tmux -L "$SOCK" "$@"; }
 
 render() {
-  COLMAP="$COLMAP" SUMDIR="$SUMDIR" AGENTS_SELF="$SELF" /usr/bin/python3 - "$1" "$2" <<'PY'
+  # Quota is optional: point AGENTS_STRIP_QUOTA (or ~/.config/agents-strip/quota.glob)
+  # at a glob of JSON files holding usage readings. Unset -> the quota panel shows n/a.
+  local qglob="${AGENTS_STRIP_QUOTA:-}"
+  if [ -z "$qglob" ] && [ -f "$HOME/.config/agents-strip/quota.glob" ]; then
+    qglob=$(head -1 "$HOME/.config/agents-strip/quota.glob")
+  fi
+  COLMAP="$COLMAP" SUMDIR="$SUMDIR" AGENTS_SELF="$SELF" QUOTA_GLOB="$qglob" /usr/bin/python3 - "$1" "$2" <<'PY'
 import json, os, glob, subprocess, time, textwrap, sys
 
 W = max(40, int(sys.argv[1]))
@@ -126,9 +132,10 @@ for f in glob.glob(home + "/.claude/projects/*/*.jsonl"):
                    "age": age, "state": state, "label": label, "project": project or "/"})
 agents.sort(key=lambda a: (a["order"], a["age"]))
 
-# --- quota (latest reading per window across Cortex session spools) ----------
+# --- quota (latest reading per window; path glob from $AGENTS_STRIP_QUOTA) ---
 best = {}
-for q in glob.glob(home + "/GitHub/Jahia/cortex/local/sessions/*/quota.json"):
+quota_glob = os.environ.get("QUOTA_GLOB", "").strip()
+for q in (glob.glob(os.path.expanduser(quota_glob)) if quota_glob else []):
     try:
         readings = json.load(open(q))
     except (OSError, json.JSONDecodeError):

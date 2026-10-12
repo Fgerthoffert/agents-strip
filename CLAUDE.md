@@ -16,7 +16,7 @@ monitor. Everything is one bash script with embedded Python and AppleScript.
 |---|---|---|
 | `agents-strip.sh` | `~/.config/tmux/agents-strip.sh` | the whole engine (all subcommands) |
 | `agents-strip.conf` | `~/.config/tmux/agents-strip.conf` | tmux config for the `agents` socket only |
-| `com.fgerthoffert.agents-strip.plist` | `~/Library/LaunchAgents/` | login auto-start (`start` subcommand) |
+| `agents-strip.plist` | `~/Library/LaunchAgents/` (replace `USERNAME`) | login auto-start (`start` subcommand) |
 
 Runtime state (not in the repo): `~/.cache/agents-strip.cols` (click colmap),
 `~/.cache/agents-strip/summaries/<sid>.{txt,sig,lock}` (Haiku summaries),
@@ -78,14 +78,18 @@ watch'`) → `watch` (loop: measure pane, `render W H`, sleep 4) → `position_s
   one frame to any terminal.
 - Reposition without relaunch: `agents-strip.sh position`.
 - Clean restart: `tmux -L agents kill-server` then `agents-strip.sh start`.
-- Reload LaunchAgent: `launchctl bootout gui/$(id -u)/com.fgerthoffert.agents-strip;
-  launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.fgerthoffert.agents-strip.plist`.
+- Reload LaunchAgent: `launchctl bootout gui/$(id -u)/agents-strip;
+  launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/agents-strip.plist`.
 
 ## Environment-specific assumptions
 
-These are hardcoded to the original author's machine; change them to reuse elsewhere:
+Configure these to reuse the strip on another machine:
 
-- Quota glob: `~/GitHub/Jahia/cortex/local/sessions/*/quota.json` with readings
-  `[{window: five_hour|seven_day, used_percentage, at, resets_at}, …]` (latest `at`
-  wins per window). Not present → bars show `n/a`.
-- Claude CLI at `~/.local/bin/claude`; plist username `fgerthoffert`; rightmost screen.
+- **Quota** is optional and off by default. Set `AGENTS_STRIP_QUOTA` (or write the glob
+  to `~/.config/agents-strip/quota.glob`) to a glob of JSON files, each a list of
+  readings `[{window: five_hour|seven_day, used_percentage, at, resets_at}, …]` (epoch
+  seconds; latest `at` wins per window). Unset → bars show `n/a`. `render()` resolves
+  the glob and passes it to the Python as `QUOTA_GLOB`.
+- Claude CLI is expected at `~/.local/bin/claude` (`CLAUDE_BIN` near the top of the
+  script). The plist ships with a `USERNAME` placeholder. The strip targets the
+  rightmost screen (`screen_geo()`).

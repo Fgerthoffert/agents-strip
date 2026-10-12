@@ -7,14 +7,18 @@ labelled progress bars. It lives in a dedicated [Ghostty](https://ghostty.org)
 window pinned to the top of a monitor, so you can glance at every agent at once.
 
 ```
- AGENTS  · 3 session(s)                                                      14:07
+ AGENTS  . 3 sessions                                       14:07
 
- ▸ RUNNING          │ ◆ WAITING          │ ✔ DONE              CLAUDE QUOTA
- 💬 Applying edits   │ 💬 Cypress runner  │ 💬 Wrote release    session [████░░░]  41%
-    to source files  │    awaiting relau… │    notes draft              ↻ resets 16:30
- 📁 cortex          │ 📁 jahia-modules   │ 📁 academy-docs      weekly  [██░░░░░]  22%
- 🕒 just now        │ 🕒 2m ago          │ 🕒 18m ago                   ↻ resets Mon 09:00
+ [RUNNING]            | [WAITING]            | [DONE]                 CLAUDE QUOTA
+ "Applying edits to   | "Test runner         | "Wrote release         session [####------]  41%
+  source files"       |  awaiting relaunch"  |  notes draft"                  resets 16:30
+ dir: web-frontend    | dir: api-server      | dir: docs-site         weekly  [##--------]  22%
+ just now             | 2m ago               | 18m ago                        resets Mon 09:00
 ```
+
+> The live strip uses colour and emoji icons for each row (state ▸◆✔, summary 💬,
+> project 📁, age 🕒) and block characters for the quota bars; this mockup uses plain
+> ASCII so the columns stay aligned on GitHub.
 
 Click a card to raise that agent's own Ghostty window.
 
@@ -62,9 +66,9 @@ chmod +x ~/.config/tmux/agents-strip.sh
 # 2. a handy alias (optional)
 echo 'alias agents-strip="bash ~/.config/tmux/agents-strip.sh boot"' >> ~/.zshrc
 
-# 3. start at login (edit the plist paths if your username differs)
-cp com.fgerthoffert.agents-strip.plist ~/Library/LaunchAgents/
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.fgerthoffert.agents-strip.plist
+# 3. start at login — replace USERNAME in the plist with your macOS user name first
+sed "s|USERNAME|$(id -un)|g" agents-strip.plist > ~/Library/LaunchAgents/agents-strip.plist
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/agents-strip.plist
 
 # 4. or just launch it now
 bash ~/.config/tmux/agents-strip.sh start
@@ -93,9 +97,11 @@ Inside the strip, press `r` to force an immediate redraw.
 - **Font size / zoom:** `--font-size=17` in `open_strip()` (Ghostty default is 13).
 - **Which screen:** `screen_geo()` picks the rightmost `NSScreen`; change the Swift
   one-liner for a different monitor.
-- **Quota source:** the quota bars read `~/GitHub/Jahia/cortex/local/sessions/*/quota.json`
-  — adjust that glob in the `render` Python to point at wherever your quota readings
-  live, or remove the block if you don't track quota.
+- **Quota source:** the quota panel is optional and off by default. Point it at a glob
+  of JSON files holding usage readings via the `AGENTS_STRIP_QUOTA` environment variable,
+  or by writing the glob to `~/.config/agents-strip/quota.glob`. Each file is a JSON
+  array of readings `{window: "five_hour"|"seven_day", used_percentage, resets_at, at}`
+  (epoch seconds; latest `at` wins per window). Unset → the bars show `n/a`.
 - **Positioning:** `position_strip()` uses Magnet's "Very Top"; the AX fallback sizes
   the window to the top eighth of the screen.
 

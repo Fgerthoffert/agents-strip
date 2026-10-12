@@ -3,13 +3,14 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.fgerthoffert.agents-strip</string>
+    <string>agents-strip</string>
 
-    <!-- Launch the agent strip once the GUI login session is up. -->
+    <!-- Launch the agent strip once the GUI login session is up.
+         Replace USERNAME with your macOS short user name before installing. -->
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/fgerthoffert/.config/tmux/agents-strip.sh</string>
+        <string>/Users/USERNAME/.config/tmux/agents-strip.sh</string>
         <string>start</string>
     </array>
 
@@ -20,8 +21,8 @@
     <string>Interactive</string>
 
     <key>StandardOutPath</key>
-    <string>/Users/fgerthoffert/.cache/agents-strip.launch.log</string>
+    <string>/Users/USERNAME/.cache/agents-strip.launch.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/fgerthoffert/.cache/agents-strip.launch.log</string>
+    <string>/Users/USERNAME/.cache/agents-strip.launch.log</string>
 </dict>
 </plist>
